@@ -42,6 +42,7 @@ class ImageConverter
   static const int MIN_OBJECT_AREA = 10*10; // must be at least 20x20 pixels
   static const int MAX_OBJECT_AREA = 9999*9999; // don't care how big it is
 
+  static const bool DEBUG_COLOR_VALUES = 0; //used to debug and find the color values of the pixel at 1, 1
   static const bool SHOW_WINDOWS = 0; // used to turn off the displays in a docker image
 public:
   ImageConverter()
@@ -206,9 +207,11 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed){
     // search the image for objects
     trackFilteredObject(x, y, threshold, input);
 
-    // Debug: printing the color in the top left corner of the image 
-    cv::Vec3b pixel = hsv_image.at<cv::Vec3b>(1, 1);
-    printf("H=%d, S=%d, V=%d\n", pixel[0], pixel[1], pixel[2]);
+    // Debug: printing the color in the top left corner of the image
+    if(DEBUG_COLOR_VALUES){ 
+        cv::Vec3b pixel = hsv_image.at<cv::Vec3b>(1, 1);
+        printf("H=%d, S=%d, V=%d\n", pixel[0], pixel[1], pixel[2]);
+    }
 
     if (x && y) {
 
