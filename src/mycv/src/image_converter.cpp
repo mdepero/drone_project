@@ -28,26 +28,27 @@ class ImageConverter
 
   // ranges in HSV color space attempting to find target color
   static const int H_MIN = 0;
-  static const int H_MAX = 25;
-  static const int S_MIN = 170;
-  static const int S_MAX = 230;
-  static const int V_MIN = 150;
+  static const int H_MAX = 100;
+  static const int S_MIN = 140;
+  static const int S_MAX = 190;
+  static const int V_MIN = 140;
   static const int V_MAX = 220;
 
   static const double CAM_SPEED = .10;
   static const int DEAD_ZONE = 120;
   static const double SPEEDUP_FACTOR = .002;
 
-  static const int MAX_NUM_OBJECTS=1;
-  static const int MIN_OBJECT_AREA = 20*20; // must be at least 20x20 pixels
+  static const int MAX_NUM_OBJECTS=3;
+  static const int MIN_OBJECT_AREA = 10*10; // must be at least 20x20 pixels
   static const int MAX_OBJECT_AREA = 9999*9999; // don't care how big it is
 
+  static const bool SHOW_WINDOWS = 0; // used to turn off the displays in a docker image
 public:
   ImageConverter()
     : it_(nh_)
   {
     // Subscrive to input video feed and publish output video feed
-    image_sub_ = it_.subscribe("/image_raw", 1, 
+    image_sub_ = it_.subscribe("/bebop/image_raw", 1, 
       &ImageConverter::imageCb, this);
     image_pub_ = it_.advertise("/image_converter/output_video", 1);
 
@@ -56,17 +57,20 @@ public:
 
     cam_x = -0;
 
-
-    cv::namedWindow(INPUT_WINDOW);
-    cv::namedWindow(HSV_WINDOW);
-    cv::namedWindow(THRESH_WINDOW);
+    if(SHOW_WINDOWS){
+        cv::namedWindow(INPUT_WINDOW);
+        cv::namedWindow(HSV_WINDOW);
+        cv::namedWindow(THRESH_WINDOW);
+    }
   }
 
   ~ImageConverter()
   {
-    cv::destroyWindow(INPUT_WINDOW);
-    cv::destroyWindow(HSV_WINDOW);
-    cv::destroyWindow(THRESH_WINDOW);
+    if(SHOW_WINDOWS){
+        cv::destroyWindow(INPUT_WINDOW);
+        cv::destroyWindow(HSV_WINDOW);
+        cv::destroyWindow(THRESH_WINDOW);
+    }
   }
 
 // method from https://www.youtube.com/watch?v=bSeFrPrqZ2A
@@ -203,22 +207,20 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed){
     trackFilteredObject(x, y, threshold, input);
 
     // Debug: printing the color in the top left corner of the image 
-    // cv::Vec3b pixel = hsv_image.at<cv::Vec3b>(1, 1);
-    // printf("H=%d, S=%d, V=%d\n", pixel[0], pixel[1], pixel[2]);
+    cv::Vec3b pixel = hsv_image.at<cv::Vec3b>(1, 1);
+    printf("H=%d, S=%d, V=%d\n", pixel[0], pixel[1], pixel[2]);
 
     if (x && y) {
 
         if ( x < (threshold.cols / 2 - DEAD_ZONE) ) {
 
-            printf("We gon left %f",cam_x);
+            printf("Move left %f",cam_x);
             cam_x = CAM_SPEED;
-            
 
         } else if ( x > (threshold.cols / 2 + DEAD_ZONE) ){
 
-            printf("We gon right %f",cam_x);
+            printf("Move right %f",cam_x);
             cam_x = -CAM_SPEED;
-            
 
         } else {
 
@@ -237,9 +239,11 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed){
     }
 
 /* ==== UPDATE GUI'S ==== */
-    cv::imshow(INPUT_WINDOW, input);
-    cv::imshow(HSV_WINDOW, hsv_image);
-    cv::imshow(THRESH_WINDOW, threshold);
+    if(SHOW_WINDOWS){
+        cv::imshow(INPUT_WINDOW, input);
+        cv::imshow(HSV_WINDOW, hsv_image);
+        cv::imshow(THRESH_WINDOW, threshold);
+    }
 
 
 /* ==== OUTPUT TOPIC STREAMS ==== */
