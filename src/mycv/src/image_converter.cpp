@@ -52,8 +52,8 @@ class ImageConverter
   static const int MIN_OBJECT_AREA = 20*20; // must be at least 20x20 pixels
   static const int MAX_OBJECT_AREA = 70*70; // don't care how big it is
 
-  static const bool DEBUG_COLOR_VALUES = 1; // print color values at pixel at 1, 1 (top left corner)
-  static const bool SHOW_WINDOWS = 1; // used to turn off the displays in a docker image
+  static const bool DEBUG_COLOR_VALUES = 0; // print color values at pixel at 1, 1 (top left corner)
+  static const bool SHOW_WINDOWS = 0; // used to turn off the displays in a docker image
   static const bool SHOW_TURN_VALUES = 1; // print turn weights in real time
 public:
   ImageConverter()
@@ -65,7 +65,7 @@ public:
     image_pub_ = it_.advertise("/image_converter/output_video", 1);
 
 
-    twist_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+    twist_pub_ = nh_.advertise<geometry_msgs::Twist>("bebop/cmd_vel", 1);
 
     cam_x = -0;
 
