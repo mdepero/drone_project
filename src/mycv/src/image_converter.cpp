@@ -37,23 +37,23 @@ class ImageConverter
   */
 
   /* ORANGE */
-  static const int H_MIN = 8;
-  static const int H_MAX = 32;
+  static const int H_MIN = 5;
+  static const int H_MAX = 16;
   static const int S_MIN = 100;
-  static const int S_MAX = 226;
-  static const int V_MIN = 168;
+  static const int S_MAX = 200;
+  static const int V_MIN = 178;
   static const int V_MAX = 255;
 
   static const double CAM_SPEED = .10;
   static const int DEAD_ZONE = 120;
   static const double SPEEDUP_FACTOR = .002;
 
-  static const int MAX_NUM_OBJECTS=2;
+  static const int MAX_NUM_OBJECTS=3;
   static const int MIN_OBJECT_AREA = 20*20; // must be at least 20x20 pixels
   static const int MAX_OBJECT_AREA = 70*70; // don't care how big it is
 
-  static const bool DEBUG_COLOR_VALUES = 0; // print color values at pixel at 1, 1 (top left corner)
-  static const bool SHOW_WINDOWS = 0; // used to turn off the displays in a docker image
+  static const bool DEBUG_COLOR_VALUES = 1; // print color values at pixel at 1, 1 (top left corner)
+  static const bool SHOW_WINDOWS = 1; // used to turn off the displays in a docker image
   static const bool SHOW_TURN_VALUES = 1; // print turn weights in real time
 public:
   ImageConverter()
@@ -91,7 +91,7 @@ void morphOps(cv::Mat &thresh){
 	//create structuring element that will be used to "dilate" and "erode" image.
 	//the element chosen here is a 3px by 3px rectangle
 
-	cv::Mat erodeElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
+	cv::Mat erodeElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(5,5));
     //dilate with larger element so make sure object is nicely visible
 	cv::Mat dilateElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(8,8));
 
