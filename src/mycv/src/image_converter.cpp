@@ -27,23 +27,34 @@ class ImageConverter
   double cam_x;
 
   // ranges in HSV color space attempting to find target color
+  /* GREEN (many false positives)
   static const int H_MIN = 0;
   static const int H_MAX = 100;
   static const int S_MIN = 140;
   static const int S_MAX = 190;
   static const int V_MIN = 140;
   static const int V_MAX = 220;
+  */
+
+  /* ORANGE */
+  static const int H_MIN = 8;
+  static const int H_MAX = 32;
+  static const int S_MIN = 100;
+  static const int S_MAX = 226;
+  static const int V_MIN = 168;
+  static const int V_MAX = 255;
 
   static const double CAM_SPEED = .10;
   static const int DEAD_ZONE = 120;
   static const double SPEEDUP_FACTOR = .002;
 
-  static const int MAX_NUM_OBJECTS=3;
-  static const int MIN_OBJECT_AREA = 10*10; // must be at least 20x20 pixels
-  static const int MAX_OBJECT_AREA = 9999*9999; // don't care how big it is
+  static const int MAX_NUM_OBJECTS=2;
+  static const int MIN_OBJECT_AREA = 20*20; // must be at least 20x20 pixels
+  static const int MAX_OBJECT_AREA = 70*70; // don't care how big it is
 
-  static const bool DEBUG_COLOR_VALUES = 0; //used to debug and find the color values of the pixel at 1, 1
+  static const bool DEBUG_COLOR_VALUES = 0; // print color values at pixel at 1, 1 (top left corner)
   static const bool SHOW_WINDOWS = 0; // used to turn off the displays in a docker image
+  static const bool SHOW_TURN_VALUES = 1; // print turn weights in real time
 public:
   ImageConverter()
     : it_(nh_)
@@ -216,13 +227,13 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed){
     if (x && y) {
 
         if ( x < (threshold.cols / 2 - DEAD_ZONE) ) {
-
-            printf("Move left %f",cam_x);
+	    if(SHOW_TURN_VALUES)
+              printf("Move left %f",cam_x);
             cam_x = CAM_SPEED;
 
         } else if ( x > (threshold.cols / 2 + DEAD_ZONE) ){
-
-            printf("Move right %f",cam_x);
+	    if(SHOW_TURN_VALUES)
+               printf("Move right %f",cam_x);
             cam_x = -CAM_SPEED;
 
         } else {
